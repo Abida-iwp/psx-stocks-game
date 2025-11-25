@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Stock Market Time Machine | پاکستان سٹاک مارکیٹ ٹائم مشین</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fce7f3 0%, #ddd6fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .game-container { max-width: 750px; width: 100%; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .card.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .character {
+            width: 120px; height: 120px;
+            background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 60px;
+        }
+        h1 { text-align: center; color: #581c87; font-size: 1.8rem; margin-bottom: 10px; }
+        .urdu-subtitle { text-align: center; color: #9333ea; font-size: 1.1rem; margin-bottom: 30px; }
+        .story-text { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 25px; }
+        .story-text .highlight {
+            background: linear-gradient(135deg, #fce7f3 0%, #ddd6fe 100%);
+            padding: 2px 8px; border-radius: 4px; font-weight: 600;
+        }
+        .dialogue {
+            background: #faf5ff;
+            border-left: 4px solid #a78bfa;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+        }
+        .speaker { font-weight: 600; color: #7c3aed; font-style: normal; }
+        .sector-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin: 25px 0; }
+        .sector-option {
+            background: white;
+            border: 2px solid #e9d5ff;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .sector-option:hover {
+            border-color: #a78bfa;
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(167, 139, 250, 0.2);
+        }
+        .sector-option.selected { border-color: #7c3aed; background: #faf5ff; }
+        .sector-icon { font-size: 2.5rem; width: 60px; text-align: center; }
+        .sector-info h3 { color: #581c87; font-size: 1.1rem; margin-bottom: 5px; }
+        .sector-info p { color: #6b7280; font-size: 0.9rem; }
+        .sector-info .companies { color: #9333ea; font-size: 0.85rem; margin-top: 5px; }
+        .btn {
+            display: block; width: 100%;
+            padding: 16px 32px;
+            border: none; border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem; font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .year-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #7c3aed 0%, #581c87 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .event-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .event-box.good { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+        .event-box.bad { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .event-box .event-icon { font-size: 3rem; margin-bottom: 10px; }
+        .event-box h3 { color: #374151; margin-bottom: 10px; }
+        .event-box p { color: #4b5563; }
+        .real-tag {
+            display: inline-block;
+            background: #374151;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+        }
+        .impact-display {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            border: 3px solid #e5e7eb;
+        }
+        .impact-display.positive { border-color: #10b981; background: #ecfdf5; }
+        .impact-display.negative { border-color: #ef4444; background: #fef2f2; }
+        .impact-percent { font-size: 3rem; font-weight: 700; }
+        .impact-display.positive .impact-percent { color: #059669; }
+        .impact-display.negative .impact-percent { color: #dc2626; }
+        .new-value { font-size: 1.3rem; color: #374151; margin-top: 10px; }
+        .new-value strong { color: #7c3aed; }
+        .explain-box {
+            background: #f5f3ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .explain-box .title {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 600; color: #5b21b6; margin-bottom: 10px;
+        }
+        .explain-box p { color: #4b5563; line-height: 1.7; }
+        .portfolio-bar {
+            background: #f3f4f6;
+            border-radius: 30px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .portfolio-bar .sector-name { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .portfolio-bar .value { font-weight: 700; color: #7c3aed; font-size: 1.2rem; }
+        .final-result {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            border-radius: 20px;
+            color: white;
+            margin: 25px 0;
+        }
+        .final-value { font-size: 3rem; font-weight: 700; }
+        .return-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        .comparison { margin: 25px 0; }
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+        }
+        .comparison-row.your-pick { background: #f5f3ff; border: 2px solid #a78bfa; }
+        .comparison-row .left { display: flex; align-items: center; gap: 10px; }
+        .comparison-row .right { text-align: right; }
+        .comparison-row .price { font-weight: 600; color: #374151; }
+        .comparison-row .change { font-size: 0.9rem; font-weight: 600; }
+        .change.positive { color: #059669; }
+        .change.negative { color: #dc2626; }
+        .lesson-card {
+            background: #fffbeb;
+            border: 2px solid #fcd34d;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .lesson-card h4 { color: #92400e; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .lesson-card p { color: #78350f; line-height: 1.7; }
+        .round-badge {
+            display: inline-block;
+            background: #f3f4f6;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        .btn-secondary { background: white; color: #7c3aed; border: 2px solid #7c3aed; }
+        .btn-secondary:hover { background: #7c3aed; color: white; }
+        .buttons-row { display: flex; gap: 15px; }
+        .buttons-row .btn { flex: 1; }
+        .all-sectors-impact { margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb; }
+        .all-sectors-impact h4 { text-align: center; color: #6b7280; font-size: 0.9rem; margin-bottom: 15px; }
+        .mini-impacts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .mini-impact {
+            text-align: center;
+            padding: 10px 5px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+        .mini-impact.highlight { background: #f5f3ff; border: 2px solid #a78bfa; }
+        .mini-impact .icon { font-size: 1.3rem; }
+        .mini-impact .name { font-size: 0.65rem; color: #6b7280; display: block; }
+        .mini-impact .percent { font-weight: 600; display: block; margin-top: 3px; }
+        .mini-impact .percent.positive { color: #059669; }
+        .mini-impact .percent.negative { color: #dc2626; }
+        .timeline-info {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .timeline-info .period { font-weight: 700; color: #0369a1; font-size: 1.2rem; }
+        .timeline-info p { color: #0c4a6e; font-size: 0.9rem; margin-top: 5px; }
+        @media (max-width: 600px) {
+            .card { padding: 25px; }
+            h1 { font-size: 1.5rem; }
+            .mini-impacts { grid-template-columns: repeat(3, 1fr); }
+            .portfolio-bar { flex-direction: column; gap: 10px; text-align: center; }
+            .final-value { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        
+        <!-- SCREEN 1: Welcome -->
+        <div class="card active" id="screen-welcome">
+            <div class="character">⏰</div>
+            <h1>Stock Market Time Machine!</h1>
+            <p class="urdu-subtitle">سٹاک مارکیٹ ٹائم مشین</p>
+            
+            <p class="story-text">
+                What if you had invested <span class="highlight">Rs. 100,000</span> in Pakistan Stock Exchange back in <span class="highlight">2015</span>? Let's find out!
+            </p>
+            
+            <div class="dialogue">
+                <span class="speaker">You:</span> "Main dekhna chahti hoon ke pichle 10 saalon mein Pakistan ki stock market mein kya hua!"
+            </div>
+            
+            <p class="story-text">
+                This game uses <strong>REAL events</strong> from Pakistan's history - COVID-19, currency crashes, IMF deals, and more!
+            </p>
+            
+            <div class="explain-box">
+                <div class="title">📊 Based on Real PSX Data</div>
+                <p>All events and impacts are based on actual Pakistan Stock Exchange history from 2015-2024.</p>
+            </div>
+            
+            <button class="btn btn-primary" onclick="goToScreen('screen-explain')">Start Time Travel! 🚀</button>
+        </div>
+
+        <!-- SCREEN 2: Explanation -->
+        <div class="card" id="screen-explain">
+            <h1>How Does This Work?</h1>
+            <p class="urdu-subtitle">یہ کیسے کام کرتا ہے؟</p>
+            
+            <p class="story-text">
+                Instead of picking one company, you'll pick a <span class="highlight">SECTOR</span> (industry type). This is how smart investors think!
+            </p>
+            
+            <div class="explain-box">
+                <div class="title">💡 What's a Sector?</div>
+                <p>
+                    A sector is a group of similar companies:<br><br>
+                    🏦 <strong>Banking</strong> = HBL, MCB, Meezan Bank...<br>
+                    💊 <strong>Pharma</strong> = Abbott, GSK, Searle...<br>
+                    🏗️ <strong>Cement</strong> = Lucky, DG Khan, Maple Leaf...<br><br>
+                    Investing in a sector means your money is spread across all these companies!
+                </p>
+            </div>
+            
+            <button class="btn btn-primary" onclick="goToScreen('screen-choose')">Let Me Pick a Sector 📈</button>
+        </div>
+
+        <!-- SCREEN 3: Choose Sector -->
+        <div class="card" id="screen-choose">
+            <h1>Pick Your Sector</h1>
+            <p class="urdu-subtitle">اپنا سیکٹر چنیں</p>
+            
+            <div class="timeline-info">
+                <div class="period">Starting: January 2015</div>
+                <p>You're investing Rs. 100,000 in one sector</p>
+            </div>
+            
+            <div class="sector-grid">
+                <div class="sector-option" onclick="selectSector('banking')">
+                    <div class="sector-icon">🏦</div>
+                    <div class="sector-info">
+                        <h3>Banking Sector</h3>
+                        <p>Pakistan's financial backbone</p>
+                        <p class="companies">HBL, MCB, Meezan Bank, UBL...</p>
+                    </div>
+                </div>
+                
+                <div class="sector-option" onclick="selectSector('pharma')">
+                    <div class="sector-icon">💊</div>
+                    <div class="sector-info">
+                        <h3>Pharmaceutical Sector</h3>
+                        <p>Medicine makers - defensive during crises</p>
+                        <p class="companies">Abbott, GSK Pakistan, Searle...</p>
+                    </div>
+                </div>
+                
+                <div class="sector-option" onclick="selectSector('cement')">
+                    <div class="sector-icon">🏗️</div>
+                    <div class="sector-info">
+                        <h3>Cement Sector</h3>
+                        <p>Building Pakistan's infrastructure</p>
+                        <p class="companies">Lucky Cement, DG Khan, Cherat...</p>
+                    </div>
+                </div>
+                
+                <div class="sector-option" onclick="selectSector('oil')">
+                    <div class="sector-icon">⛽</div>
+                    <div class="sector-info">
+                        <h3>Oil & Gas Sector</h3>
+                        <p>Energy explorers and marketers</p>
+                        <p class="companies">OGDC, PPL, PSO, Mari Petroleum...</p>
+                    </div>
+                </div>
+                
+                <div class="sector-option" onclick="selectSector('tech')">
+                    <div class="sector-icon">💻</div>
+                    <div class="sector-info">
+                        <h3>Technology Sector</h3>
+                        <p>IT & software companies</p>
+                        <p class="companies">Systems Limited, NetSol, TRG...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="confirmBtn" disabled onclick="confirmSector()">Select a Sector Above ☝️</button>
+        </div>
+
+        <!-- SCREEN 4: Confirmation -->
+        <div class="card" id="screen-confirm">
+            <h1>Time to Travel!</h1>
+            <p class="urdu-subtitle">سفر کا وقت!</p>
+            
+            <div class="portfolio-bar">
+                <div class="sector-name">
+                    <span id="chosen-icon">🏦</span>
+                    <span id="chosen-name">Banking Sector</span>
+                </div>
+                <div class="value">Rs. 100,000</div>
+            </div>
+            
+            <div class="timeline-info">
+                <div class="period">📅 January 2015</div>
+                <p>Your Rs. 100,000 is invested. Let's see what happens!</p>
+            </div>
+            
+            <p class="story-text">
+                You'll experience <strong>5 major real events</strong> that shook Pakistan's economy. Each affected sectors differently!
+            </p>
+            
+            <button class="btn btn-primary" onclick="startEvents()">Begin the Journey! 📰</button>
+        </div>
+
+        <!-- EVENT SCREEN -->
+        <div class="card" id="screen-event">
+            <span class="round-badge" id="round-badge">Event 1 of 5</span>
+            
+            <div class="portfolio-bar">
+                <div class="sector-name">
+                    <span id="event-sector-icon">🏦</span>
+                    <span id="event-sector-name">Banking Sector</span>
+                </div>
+                <div class="value" id="current-value">Rs. 100,000</div>
+            </div>
+            
+            <div class="year-badge" id="year-badge">📅 2017</div>
+            
+            <div class="event-box" id="event-box">
+                <span class="real-tag">✓ REAL EVENT</span>
+                <div class="event-icon" id="event-icon">📰</div>
+                <h3 id="event-headline">Headline</h3>
+                <p id="event-description">Description</p>
+            </div>
+            
+            <div class="dialogue">
+                <span class="speaker">You:</span> <span id="user-reaction">"What happened?"</span>
+            </div>
+            
+            <button class="btn btn-primary" onclick="showImpact()">See What Happened 👀</button>
+        </div>
+
+        <!-- IMPACT SCREEN -->
+        <div class="card" id="screen-impact">
+            <span class="round-badge" id="impact-round-badge">Event 1 of 5</span>
+            
+            <div class="portfolio-bar">
+                <div class="sector-name">
+                    <span id="impact-sector-icon">🏦</span>
+                    <span id="impact-sector-name">Banking Sector</span>
+                </div>
+                <div class="value" id="old-value">Was: Rs. 100,000</div>
+            </div>
+            
+            <div class="impact-display" id="impact-display">
+                <div class="impact-percent" id="impact-percent">+10%</div>
+                <div class="new-value">New Value: <strong id="new-value">Rs. 110,000</strong></div>
+            </div>
+            
+            <div class="explain-box">
+                <div class="title">💡 Why This Happened</div>
+                <p id="impact-explanation">Explanation...</p>
+            </div>
+            
+            <div class="all-sectors-impact">
+                <h4>How ALL sectors were affected:</h4>
+                <div class="mini-impacts" id="mini-impacts"></div>
+            </div>
+            
+            <div class="dialogue">
+                <span class="speaker">You:</span> <span id="user-response">"Interesting!"</span>
+            </div>
+            
+            <button class="btn btn-primary" onclick="nextEvent()">Next Event ➡️</button>
+        </div>
+
+        <!-- FINAL RESULTS -->
+        <div class="card" id="screen-results">
+            <h1>🎉 Your 10-Year Journey!</h1>
+            <p class="urdu-subtitle">آپ کا 10 سالہ سفر!</p>
+            
+            <div class="timeline-info">
+                <div class="period">2015 → 2024</div>
+                <p>Here's what happened to your Rs. 100,000</p>
+            </div>
+            
+            <div class="final-result">
+                <p>Your <span id="final-sector-name">Banking</span> Investment</p>
+                <div class="final-value" id="final-value">Rs. 250,000</div>
+                <div class="return-badge" id="return-badge">+150% Return</div>
+            </div>
+            
+            <div class="dialogue">
+                <span class="speaker">You:</span> <span id="final-reaction">"Wow!"</span>
+            </div>
+            
+            <h3 style="margin: 25px 0 15px; color: #374151;">📊 If you had picked differently:</h3>
+            <div class="comparison" id="comparison-list"></div>
+            
+            <div class="lesson-card">
+                <h4>📚 Key Lessons from Real History</h4>
+                <p id="final-lesson">Lessons...</p>
+            </div>
+            
+            <div class="buttons-row">
+                <button class="btn btn-secondary" onclick="restartGame()">Start Over 🔄</button>
+                <button class="btn btn-primary" onclick="tryDifferentSector()">Try Another Sector 📊</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            selectedSector: null,
+            currentValue: 100000,
+            currentRound: 0,
+            events: [],
+            allSectorValues: { banking: 100000, pharma: 100000, cement: 100000, oil: 100000, tech: 100000 }
+        };
+
+        const sectors = {
+            banking: { name: "Banking", icon: "🏦" },
+            pharma: { name: "Pharmaceutical", icon: "💊" },
+            cement: { name: "Cement", icon: "🏗️" },
+            oil: { name: "Oil & Gas", icon: "⛽" },
+            tech: { name: "Technology", icon: "💻" }
+        };
+
+        // REAL EVENTS from Pakistan 2015-2024
+        const events = [
+            {
+                year: "2017",
+                icon: "🌟",
+                headline: "Pakistan Joins MSCI Emerging Markets!",
+                description: "After years as a 'frontier market', Pakistan upgraded to MSCI Emerging Markets Index. Foreign investment poured in. KSE-100 hit all-time high of 53,000+!",
+                type: "good",
+                impacts: {
+                    banking: { percent: 35, reason: "Banks led the rally! Foreign investors love Pakistani banks for liquidity and dividends.", reaction: "Foreign investors really love Pakistani banks!" },
+                    pharma: { percent: 15, reason: "Pharma gained but less than others - foreign investors prefer larger, liquid sectors first.", reaction: "Steady gains but others did better..." },
+                    cement: { percent: 45, reason: "CPEC hype at peak! Cement seen as direct beneficiary of China-Pakistan infrastructure projects.", reaction: "CPEC excitement really boosted cement!" },
+                    oil: { percent: 25, reason: "Energy stocks gained on economic optimism. More growth = more energy demand!", reaction: "Energy sector benefited from overall optimism!" },
+                    tech: { percent: 55, reason: "Tech was the star! Systems Limited rode global tech wave + dollar export earnings.", reaction: "Tech companies were the biggest winners!" }
+                }
+            },
+            {
+                year: "2018-19",
+                icon: "💵",
+                headline: "IMF Bailout & Rupee Crashes 30%!",
+                description: "Pakistan approached IMF for $6 billion bailout. Rupee crashed from Rs. 110 to Rs. 160/dollar. Interest rates jumped to 13.25%.",
+                type: "bad",
+                impacts: {
+                    banking: { percent: -15, reason: "Banks held up better! Higher interest rates = better margins. But uncertainty hurt overall.", reaction: "Banks survived better than expected!" },
+                    pharma: { percent: -25, reason: "Disaster! Most raw materials imported in dollars. Costs exploded but medicine prices capped.", reaction: "Imported raw materials became so expensive!" },
+                    cement: { percent: -35, reason: "Construction collapsed. Who builds when interest rates are 13%+? Demand crashed.", reaction: "Nobody was building anything anymore!" },
+                    oil: { percent: -20, reason: "Mixed impact. Import in dollars, sell in dollars. Refining margins squeezed.", reaction: "Dollar exposure hurt but not as bad as others." },
+                    tech: { percent: 10, reason: "Tech BENEFITED! Earn in dollars, pay costs in rupees. Rupee crash = more earnings!", reaction: "Wait, tech actually gained?! Dollar exports helped!" }
+                }
+            },
+            {
+                year: "2020",
+                icon: "🦠",
+                headline: "COVID-19 Pandemic Hits Pakistan!",
+                description: "First case in February 2020. Market crashed 37% in weeks - from 43,000 to 27,000 points. Lockdowns and fear everywhere.",
+                type: "bad",
+                impacts: {
+                    banking: { percent: -30, reason: "Banks crashed on loan default fears. If businesses close, they can't repay!", reaction: "Everyone afraid borrowers won't pay back!" },
+                    pharma: { percent: 40, reason: "PHARMA WAS THE HERO! Medicine demand exploded. GSK, Abbott saw record sales!", reaction: "Medicine companies saved portfolios during COVID!" },
+                    cement: { percent: -25, reason: "Sites closed during lockdowns. But recovered as construction allowed to continue.", reaction: "Initial crash but government kept construction open!" },
+                    oil: { percent: -35, reason: "Double hit! Oil prices crashed globally AND local demand dropped. Nobody driving.", reaction: "Oil prices crashed globally AND locally. Double pain!" },
+                    tech: { percent: 25, reason: "Tech thrived! Work-from-home = more IT demand. Dollar earnings + digital wave!", reaction: "Everyone working from home boosted tech!" }
+                }
+            },
+            {
+                year: "2022",
+                icon: "🌊",
+                headline: "Economic Crisis + Historic Floods!",
+                description: "Political chaos (Imran Khan ouster), rupee crashed to Rs. 230, inflation hit 27%, interest rates reached 22% (highest since 1996). Then devastating floods.",
+                type: "bad",
+                impacts: {
+                    banking: { percent: 15, reason: "Surprise! Banks did GREAT with 22% rates. Profit margins on loans expanded massively!", reaction: "Banks made money from high interest rates!" },
+                    pharma: { percent: -20, reason: "Dollar costs + price controls = squeezed margins. Some MNCs exited Pakistan.", reaction: "Dollar imports hurt. Some companies left Pakistan!" },
+                    cement: { percent: -40, reason: "Cement CRASHED. No construction at 22% rates. Floods damaged projects too.", reaction: "Highest rates in history killed construction!" },
+                    oil: { percent: -15, reason: "Struggled with forex issues. Couldn't import enough fuel at times!", reaction: "Couldn't even import fuel due to dollar shortage!" },
+                    tech: { percent: 5, reason: "Tech stayed resilient. Dollar earnings protected them. IT exports grew!", reaction: "Dollar earnings kept tech stable." }
+                }
+            },
+            {
+                year: "2024",
+                icon: "🚀",
+                headline: "Historic Recovery - PSX Up 87%!",
+                description: "PSX became world's best performing market! IMF deal, stable rupee, rates cut from 22% to 13%, inflation below 10%. KSE-100: 62,000 → 116,000!",
+                type: "good",
+                impacts: {
+                    banking: { percent: 70, reason: "Banks SOARED! Rate cuts = bond gains. Foreign investors returned. HBL hit all-time highs!", reaction: "Banks led the biggest PSX rally ever!" },
+                    pharma: { percent: 198, reason: "PHARMA WAS #1 SECTOR! GSK rose 385%. Medicine price adjustments finally approved!", reaction: "Pharma TRIPLED! Best sector of 2024!" },
+                    cement: { percent: 85, reason: "Recovered strongly. Lower rates = construction restarting. Projects resumed.", reaction: "Construction finally coming back!" },
+                    oil: { percent: 50, reason: "Recovered well. Economic stability = normalized operations. OGDC, PPL gained.", reaction: "Energy normalized with recovery." },
+                    tech: { percent: 120, reason: "Tech kept winning! Stable economy + global tech demand + dollar earnings.", reaction: "Tech remained a consistent winner!" }
+                }
+            }
+        ];
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function selectSector(sectorId) {
+            document.querySelectorAll('.sector-option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            gameState.selectedSector = sectorId;
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('confirmBtn').textContent = `Invest in ${sectors[sectorId].name} ✓`;
+        }
+
+        function confirmSector() {
+            if (!gameState.selectedSector) return;
+            document.getElementById('chosen-icon').textContent = sectors[gameState.selectedSector].icon;
+            document.getElementById('chosen-name').textContent = sectors[gameState.selectedSector].name + " Sector";
+            goToScreen('screen-confirm');
+        }
+
+        function startEvents() {
+            gameState.events = [...events];
+            gameState.currentRound = 0;
+            Object.keys(gameState.allSectorValues).forEach(key => { gameState.allSectorValues[key] = 100000; });
+            gameState.currentValue = 100000;
+            showEvent();
+        }
+
+        function showEvent() {
+            const event = gameState.events[gameState.currentRound];
+            const sector = gameState.selectedSector;
+            
+            document.getElementById('round-badge').textContent = `Event ${gameState.currentRound + 1} of ${gameState.events.length}`;
+            document.getElementById('event-sector-icon').textContent = sectors[sector].icon;
+            document.getElementById('event-sector-name').textContent = sectors[sector].name + " Sector";
+            document.getElementById('current-value').textContent = `Rs. ${gameState.currentValue.toLocaleString()}`;
+            document.getElementById('year-badge').textContent = `📅 ${event.year}`;
+            document.getElementById('event-icon').textContent = event.icon;
+            document.getElementById('event-headline').textContent = event.headline;
+            document.getElementById('event-description').textContent = event.description;
+            
+            const eventBox = document.getElementById('event-box');
+            eventBox.className = 'event-box';
+            if (event.type === 'good') eventBox.classList.add('good');
+            if (event.type === 'bad') eventBox.classList.add('bad');
+            
+            document.getElementById('user-reaction').textContent = `"${event.year} mein yeh hua... mere investment ka kya haal hua?"`;
+            goToScreen('screen-event');
+        }
+
+        function showImpact() {
+            const event = gameState.events[gameState.currentRound];
+            const sector = gameState.selectedSector;
+            const impact = event.impacts[sector];
+            
+            Object.keys(gameState.allSectorValues).forEach(key => {
+                const sectorImpact = event.impacts[key];
+                gameState.allSectorValues[key] = Math.round(gameState.allSectorValues[key] * (1 + sectorImpact.percent / 100));
+            });
+            
+            const oldValue = gameState.currentValue;
+            gameState.currentValue = gameState.allSectorValues[sector];
+            
+            document.getElementById('impact-round-badge').textContent = `Event ${gameState.currentRound + 1} of ${gameState.events.length}`;
+            document.getElementById('impact-sector-icon').textContent = sectors[sector].icon;
+            document.getElementById('impact-sector-name').textContent = sectors[sector].name + " Sector";
+            document.getElementById('old-value').textContent = `Was: Rs. ${oldValue.toLocaleString()}`;
+            
+            const impactDisplay = document.getElementById('impact-display');
+            document.getElementById('impact-percent').textContent = impact.percent >= 0 ? `+${impact.percent}%` : `${impact.percent}%`;
+            document.getElementById('new-value').textContent = `Rs. ${gameState.currentValue.toLocaleString()}`;
+            
+            impactDisplay.className = 'impact-display ' + (impact.percent >= 0 ? 'positive' : 'negative');
+            
+            document.getElementById('impact-explanation').textContent = impact.reason;
+            document.getElementById('user-response').textContent = `"${impact.reaction}"`;
+            
+            const miniImpacts = document.getElementById('mini-impacts');
+            miniImpacts.innerHTML = '';
+            Object.keys(sectors).forEach(key => {
+                const s = sectors[key];
+                const imp = event.impacts[key];
+                miniImpacts.innerHTML += `
+                    <div class="mini-impact ${key === sector ? 'highlight' : ''}">
+                        <span class="icon">${s.icon}</span>
+                        <span class="name">${s.name}</span>
+                        <span class="percent ${imp.percent >= 0 ? 'positive' : 'negative'}">${imp.percent >= 0 ? '+' : ''}${imp.percent}%</span>
+                    </div>`;
+            });
+            
+            goToScreen('screen-impact');
+        }
+
+        function nextEvent() {
+            gameState.currentRound++;
+            if (gameState.currentRound >= gameState.events.length) showResults();
+            else showEvent();
+        }
+
+        function showResults() {
+            const sector = gameState.selectedSector;
+            const totalReturn = ((gameState.currentValue - 100000) / 100000 * 100).toFixed(0);
+            
+            document.getElementById('final-sector-name').textContent = sectors[sector].name;
+            document.getElementById('final-value').textContent = `Rs. ${gameState.currentValue.toLocaleString()}`;
+            document.getElementById('return-badge').textContent = `${totalReturn >= 0 ? '+' : ''}${totalReturn}% Return`;
+            document.getElementById('return-badge').style.background = totalReturn >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+            
+            const reactions = {
+                high: '"SubhanAllah! Mere paisay bahut zyada ho gaye! 🎉"',
+                medium: '"Acha return hai! Savings account se behtar!"',
+                low: '"Profit hua, but kam. Sector selection matters!"',
+                negative: '"Loss hua but seekh mili - diversify karo!"'
+            };
+            document.getElementById('final-reaction').textContent = totalReturn >= 200 ? reactions.high : totalReturn >= 100 ? reactions.medium : totalReturn >= 0 ? reactions.low : reactions.negative;
+            
+            const comparisonList = document.getElementById('comparison-list');
+            comparisonList.innerHTML = '';
+            Object.entries(gameState.allSectorValues).sort((a, b) => b[1] - a[1]).forEach(([sectorId, value]) => {
+                const ret = ((value - 100000) / 100000 * 100).toFixed(0);
+                comparisonList.innerHTML += `
+                    <div class="comparison-row ${sectorId === sector ? 'your-pick' : ''}">
+                        <div class="left"><span>${sectors[sectorId].icon}</span><span>${sectors[sectorId].name} ${sectorId === sector ? '👈' : ''}</span></div>
+                        <div class="right">
+                            <div class="price">Rs. ${value.toLocaleString()}</div>
+                            <div class="change ${ret >= 0 ? 'positive' : 'negative'}">${ret >= 0 ? '+' : ''}${ret}%</div>
+                        </div>
+                    </div>`;
+            });
+            
+            const sorted = Object.entries(gameState.allSectorValues).sort((a, b) => b[1] - a[1]);
+            document.getElementById('final-lesson').innerHTML = `
+                <strong>Real lessons from 2015-2024:</strong><br><br>
+                📈 <strong>${sectors[sorted[0][0]].name}</strong> performed best - COVID medicine demand + 2024 rally!<br><br>
+                📉 <strong>${sectors[sorted[4][0]].name}</strong> struggled - high interest rates + floods hurt badly.<br><br>
+                🎯 <strong>Key insight:</strong> Different sectors react VERY differently to same events. Smart investors diversify!<br><br>
+                💡 <strong>Fact:</strong> KSE-100 gave ~11% average annual returns over 10+ years - beats savings accounts!`;
+            
+            goToScreen('screen-results');
+        }
+
+        function restartGame() {
+            gameState = { selectedSector: null, currentValue: 100000, currentRound: 0, events: [],
+                allSectorValues: { banking: 100000, pharma: 100000, cement: 100000, oil: 100000, tech: 100000 }};
+            document.querySelectorAll('.sector-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').textContent = 'Select a Sector Above ☝️';
+            goToScreen('screen-welcome');
+        }
+
+        function tryDifferentSector() {
+            gameState.selectedSector = null;
+            gameState.currentValue = 100000;
+            gameState.currentRound = 0;
+            gameState.allSectorValues = { banking: 100000, pharma: 100000, cement: 100000, oil: 100000, tech: 100000 };
+            document.querySelectorAll('.sector-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').textContent = 'Select a Sector Above ☝️';
+            goToScreen('screen-choose');
+        }
+    </script>
+</body>
+</html>
